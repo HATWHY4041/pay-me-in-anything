@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Payment receipt | Pay Me in Anything</title>
+  <meta name="robots" content="noindex">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=IBM+Plex+Mono:wght@500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/app.css">
+</head>
+<body>
+  <main class="wrap">
+    <a class="brand" href="/"><span class="brand-mark" aria-hidden="true">$</span>Pay Me in Anything</a>
+
+    <section id="bad" class="slip" hidden>
+      <div class="slip-section">
+        <p class="payee">This receipt link is incomplete</p>
+        <p class="payee-sub">Ask the person who sent it for the full link.</p>
+      </div>
+    </section>
+
+    <article id="slip" class="slip" hidden>
+      <div class="slip-section">
+        <p class="payee">Payment receipt</p>
+        <p class="payee-sub" id="r-to"></p>
+        <p class="amount"><span id="r-amt"></span><small>USD</small></p>
+        <p class="note" id="r-note" hidden></p>
+      </div>
+      <div class="tear" aria-hidden="true"></div>
+      <section class="slip-section" aria-live="polite">
+        <div class="stamp-wrap" id="r-stampwrap" hidden><span class="stamp" id="r-stamp">Paid</span></div>
+        <div class="status" id="r-status" data-state="working" role="status">
+          <span class="dot" aria-hidden="true"></span><span id="r-status-text">Checking with NEAR Intents…</span>
+        </div>
+        <ul class="receipt" id="r-rows"></ul>
+        <p class="hint">Verified live with NEAR Intents each time this page opens. It is not editable.</p>
+        <div class="stack" style="margin-top:18px">
+          <button type="button" class="quiet" id="r-copy">Copy receipt link</button>
+        </div>
+      </section>
+    </article>
+
+    <footer>Payments settle through <a href="https://docs.near-intents.org/">NEAR Intents</a>. Built at NEAR HACKATHON 2026.</footer>
+  </main>
+  <script src="/shared.js"></script>
+  <script src="/receipt.js"></script>
+</body>
+</html>

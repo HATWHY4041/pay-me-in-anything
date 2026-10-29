@@ -69,10 +69,21 @@ Optional: `export ONECLICK_JWT=<key from partners.near-intents.org>` before star
 
 Import the repo on Vercel (no framework, no build step). `public/` is served as static files and `api/` runs as serverless functions. Add `ONECLICK_JWT` as an environment variable if you have one.
 
+## Pages
+
+| Page | What it does |
+| --- | --- |
+| `/` | Product site: live price calculator, how it works, demo video, features, live network list, FAQ |
+| `/create` | Make a payment link: copy, share sheet, download the QR code, recent links (saved in your browser) |
+| `/pay` | The payer's page: chain and token picker, one-time address, QR, live status, receipt |
+| `/receipt` | Shareable receipt that re-checks the payment live with NEAR Intents every time it opens |
+
 ## Project layout
 
 ```
-public/index.html, create.js   Create-a-link page
+public/index.html, landing.js  Product homepage (site.css)
+public/create.html, create.js  Create-a-link page
+public/receipt.html, receipt.js Shareable, live-verified receipt
 public/pay.html, pay.js        Pay page: token picker, deposit address, QR, live status, receipt
 public/shared.js, app.css      Shared helpers and styles
 api/*.js                       Thin server-side proxies to the 1Click API (keeps the key private)
@@ -81,7 +92,7 @@ server.js                      Zero-dependency local server that mirrors Vercel
 
 ## What's next
 
-- Payments history page for receivers
+- Server-side payments history for receivers
 - Choose a payout token and chain other than USDC on NEAR
 - Invoice PDFs and email receipts
 

@@ -245,6 +245,13 @@
     $("done-hint").textContent = ok
       ? "Screenshot this receipt for your records."
       : "Nothing was lost: the funds went back to the address you gave.";
+    // A receipt link anyone can open; it re-checks the payment live with NEAR Intents.
+    const rq = new URLSearchParams({ d: quote.depositAddress, to: link.to, amt: link.amt.toFixed(2), tok: quote.symbol, ch: quote.chain });
+    if (quote.depositMemo) rq.set("m", quote.depositMemo);
+    if (link.note) rq.set("for", link.note);
+    const receiptUrl = `${location.origin}/receipt?${rq}`;
+    $("receipt-link").href = receiptUrl;
+    $("copy-receipt").onclick = (e) => copy(receiptUrl, e.currentTarget);
     if (ok) store.remove(storeKey);
   }
 

@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Create a payment link | Pay Me in Anything</title>
+  <meta name="description" content="Make a payment link. Your client pays with any token on any chain; you receive USDC on NEAR.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=IBM+Plex+Mono:wght@500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/app.css">
+</head>
+<body>
+  <main class="wrap">
+    <a class="brand" href="/"><span class="brand-mark" aria-hidden="true">$</span>Pay Me in Anything</a>
+
+    <h1>Create a payment link</h1>
+    <p class="lede">Your client pays with any token on any chain, and USDC lands in your NEAR account.</p>
+
+    <form id="create" class="slip" novalidate>
+      <div class="slip-section">
+        <label class="field">
+          <span>Your name</span>
+          <input name="name" autocomplete="name" placeholder="Ade Studio" maxlength="60" required>
+        </label>
+        <label class="field">
+          <span>Your NEAR account</span>
+          <input name="to" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="ade.near" required>
+          <em>Where the USDC arrives. Copy it from your NEAR wallet.</em>
+        </label>
+        <div class="row">
+          <label class="field prefix-field">
+            <span>Amount (USD)</span>
+            <div class="prefix"><input name="amt" inputmode="decimal" placeholder="50" required></div>
+          </label>
+          <label class="field">
+            <span>For (optional)</span>
+            <input name="for" placeholder="Logo design" maxlength="80">
+          </label>
+        </div>
+        <button type="submit">Create payment link</button>
+        <p class="error" id="create-error" role="alert"></p>
+      </div>
+    </form>
+
+    <section id="result" class="slip" hidden aria-live="polite" style="margin-top:20px">
+      <div class="slip-section">
+        <p class="payee">Your payment link is ready</p>
+        <p class="payee-sub">Send it to your client, or let them scan the code.</p>
+        <div class="qr" id="link-qr" aria-label="QR code of your payment link" role="img"></div>
+        <p class="link-out" id="link-out"></p>
+        <div class="stack">
+          <button type="button" id="copy-link">Copy link</button>
+          <button type="button" class="quiet" id="share-link" hidden>Share</button>
+          <button type="button" class="quiet" id="download-qr">Download QR code</button>
+          <a class="button button-quiet" id="open-link" href="#">Open the pay page</a>
+        </div>
+      </div>
+    </section>
+
+    <section id="recent" class="slip" hidden style="margin-top:20px">
+      <div class="slip-section">
+        <p class="payee">Your recent links</p>
+        <p class="payee-sub">Saved in this browser only.</p>
+        <ul class="receipt" id="recent-list"></ul>
+        <p class="hint"><button type="button" class="quiet button-small" id="clear-recent">Clear list</button></p>
+      </div>
+    </section>
+
+    <footer>Built at NEAR HACKATHON 2026 with <a href="https://docs.near-intents.org/">NEAR Intents</a>. <a href="https://github.com/HATWHY4041/pay-me-in-anything">Source on GitHub</a></footer>
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="/shared.js"></script>
+  <script src="/create.js"></script>
+</body>
+</html>

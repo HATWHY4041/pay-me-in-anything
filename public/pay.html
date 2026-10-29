@@ -17,7 +17,7 @@
       <div class="slip-section">
         <p class="payee">This payment link is incomplete</p>
         <p class="payee-sub">Ask the person who sent it for a new link, or make your own.</p>
-        <p style="margin-top:18px"><a class="button" href="/">Make a payment link</a></p>
+        <p style="margin-top:18px"><a class="button" href="/create">Make a payment link</a></p>
       </div>
     </section>
 
@@ -96,6 +96,10 @@
         <div class="stamp-wrap"><span class="stamp" id="stamp-word">Paid</span></div>
         <ul class="receipt" id="receipt"></ul>
         <p class="hint" id="done-hint"></p>
+        <div class="stack" style="margin-top:18px">
+          <a class="button" id="receipt-link" href="#">Open shareable receipt</a>
+          <button type="button" class="quiet" id="copy-receipt">Copy receipt link</button>
+        </div>
       </section>
     </article>
 

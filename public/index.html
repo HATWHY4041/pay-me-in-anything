@@ -3,64 +3,227 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Pay Me in Anything</title>
-  <meta name="description" content="One payment link. Your client pays with any token on any chain; you receive USDC on NEAR.">
+  <title>Pay Me in Anything: get paid in USDC, whatever your client holds</title>
+  <meta name="description" content="One payment link. Your client pays with any token on 35+ chains; you receive exact USDC in your NEAR account, settled by NEAR Intents.">
+  <meta property="og:title" content="Pay Me in Anything">
+  <meta property="og:description" content="One link. Any token, any chain. Exact USDC on NEAR.">
+  <meta property="og:image" content="/demo-poster.jpg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=IBM+Plex+Mono:wght@500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/app.css">
+  <link rel="stylesheet" href="/site.css">
+  <script>document.documentElement.classList.add('js')</script>
 </head>
 <body>
-  <main class="wrap">
-    <a class="brand" href="/"><span class="brand-mark" aria-hidden="true">$</span>Pay Me in Anything</a>
+  <header class="topbar" id="topbar">
+    <div class="site">
+      <a class="brand" href="/"><span class="brand-mark" aria-hidden="true">$</span>Pay Me in Anything</a>
+      <nav class="nav" aria-label="Main">
+        <a href="#how">How it works</a>
+        <a href="#features">Features</a>
+        <a href="#networks">Networks</a>
+        <a href="#faq">FAQ</a>
+        <a class="button" href="/create">Create a link</a>
+      </nav>
+    </div>
+  </header>
 
-    <h1>Get paid in dollars, whatever your client holds.</h1>
-    <p class="lede">Make one link. Your client pays with any token on any chain, and USDC lands in your NEAR account.</p>
-
-    <form id="create" class="slip" novalidate>
-      <div class="slip-section">
-        <label class="field">
-          <span>Your name</span>
-          <input name="name" autocomplete="name" placeholder="Ade Studio" maxlength="60" required>
-        </label>
-        <label class="field">
-          <span>Your NEAR account</span>
-          <input name="to" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="ade.near" required>
-          <em>Where the USDC arrives. Copy it from your NEAR wallet.</em>
-        </label>
-        <div class="row">
-          <label class="field prefix-field">
-            <span>Amount (USD)</span>
-            <div class="prefix"><input name="amt" inputmode="decimal" placeholder="50" required></div>
-          </label>
-          <label class="field">
-            <span>For (optional)</span>
-            <input name="for" placeholder="Logo design" maxlength="80">
-          </label>
+  <main>
+    <section class="site hero" aria-labelledby="hero-title">
+      <div>
+        <h1 id="hero-title">Get paid in dollars, whatever your client holds.</h1>
+        <p class="lede">Send one link. Your client pays with any token on any chain, and exact USDC lands in your NEAR account, usually in under a minute.</p>
+        <div class="hero-ctas">
+          <a class="button" href="/create">Create a payment link</a>
+          <a class="button button-quiet" href="#watch">Watch a real payment</a>
         </div>
-        <button type="submit">Create payment link</button>
-        <p class="error" id="create-error" role="alert"></p>
+        <p class="hero-note"><span class="live" aria-hidden="true"></span><span id="hero-note">No sign-up. No smart contract. Settled by NEAR Intents.</span></p>
       </div>
-    </form>
 
-    <section id="result" class="slip" hidden aria-live="polite" style="margin-top:20px">
-      <div class="slip-section">
-        <p class="payee">Your payment link is ready</p>
-        <p class="payee-sub">Send it to your client, or let them scan the code.</p>
-        <div class="qr" id="link-qr" aria-label="QR code of your payment link" role="img"></div>
-        <p class="link-out" id="link-out"></p>
-        <div class="stack">
-          <button type="button" id="copy-link">Copy link</button>
-          <a class="button button-quiet" id="open-link" href="#">Open the pay page</a>
+      <form class="slip calc" id="calc" aria-label="Payment calculator" onsubmit="return false">
+        <div class="slip-section">
+          <p class="calc-label"><label for="calc-amt">You want to be paid</label></p>
+          <div class="calc-amount"><span aria-hidden="true">$</span><input id="calc-amt" inputmode="decimal" value="50" autocomplete="off" aria-describedby="calc-out"></div>
+        </div>
+        <div class="tear" aria-hidden="true"></div>
+        <div class="slip-section">
+          <p class="calc-label" id="chips-label">Your client pays with</p>
+          <div class="chips" id="chips" role="group" aria-labelledby="chips-label"></div>
+          <p class="calc-out" id="calc-out" aria-live="polite">&nbsp;</p>
+        </div>
+        <div class="tear" aria-hidden="true"></div>
+        <div class="slip-section calc-receive">
+          <div>
+            <p class="calc-label">You receive, exactly</p>
+            <b id="calc-recv">50.00 USDC</b>
+          </div>
+          <span class="calc-stamp" aria-hidden="true">on NEAR</span>
+        </div>
+      </form>
+    </section>
+
+    <section class="proof" aria-label="At a glance">
+      <div class="site">
+        <div class="stat"><b id="stat-chains">35+</b><span>chains your client can pay from</span></div>
+        <div class="stat"><b id="stat-tokens">200+</b><span>tokens accepted, live</span></div>
+        <div class="stat"><b>46 s</b><span>from send to paid, real mainnet test</span></div>
+        <div class="stat"><b>0</b><span>smart contracts to trust</span></div>
+      </div>
+    </section>
+
+    <section class="site section" id="how" aria-labelledby="how-title">
+      <h2 id="how-title">Four steps, one link</h2>
+      <p class="intro">No accounts, no invoices to chase, no bridge to figure out. You share a link; NEAR Intents does the cross-chain work.</p>
+      <ol class="steps">
+        <li>
+          <span class="num">1</span>
+          <h3>Create a link</h3>
+          <p>Enter your name, your NEAR account and the amount. You get a link and a QR code.</p>
+          <div class="mini" aria-hidden="true"><div class="line" style="width:40%"></div><div class="line"></div><span class="pill on">Create payment link</span></div>
+        </li>
+        <li>
+          <span class="num">2</span>
+          <h3>Your client picks a token</h3>
+          <p>They open the link and choose what they already hold: SOL, ETH, USDT on Tron, BTC and more.</p>
+          <div class="mini" aria-hidden="true"><span class="pill">Base</span><span class="pill on">Solana</span><span class="pill">NEAR</span><br><span class="pill on">USDC</span><span class="pill">SOL</span><span class="pill">USDT</span></div>
+        </li>
+        <li>
+          <span class="num">3</span>
+          <h3>They send to a one-time address</h3>
+          <p>Each payment gets its own deposit address and an exact amount, with a clear warning about which network to use.</p>
+          <div class="mini" aria-hidden="true"><b>1.0158 USDC on Solana</b><br><code>ELXxnPyoa…aVV413ukfku</code></div>
+        </li>
+        <li>
+          <span class="num">4</span>
+          <h3>You get paid</h3>
+          <p>NEAR Intents swaps and delivers exactly your amount as USDC. The page stamps it paid and shows a receipt.</p>
+          <div class="mini"><div class="stampbox" id="stampbox"><span>Paid</span></div></div>
+        </li>
+      </ol>
+    </section>
+
+    <section class="site section" id="watch" aria-labelledby="watch-title" style="padding-top:0">
+      <h2 id="watch-title">Watch a real payment</h2>
+      <p class="intro">Recorded on mainnet: 1.0158 USDC sent from a HOT wallet on Solana, 1.00 USDC received in ayoadhe.near.</p>
+      <div class="video">
+        <video controls playsinline preload="none" poster="/demo-poster.jpg">
+          <source src="/demo.mp4" type="video/mp4">
+          Your browser can't play this video. <a href="/demo.mp4">Download it</a>.
+        </video>
+      </div>
+    </section>
+
+    <section class="site section" id="features" aria-labelledby="features-title">
+      <h2 id="features-title">Built for getting paid, not for learning crypto</h2>
+      <p class="intro">Everything a client needs to pay you correctly the first time, and everything you need to know it worked.</p>
+      <div class="features">
+        <div class="feature">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8v8"/></svg>
+          <div><h3>Exact amount, every time</h3><p>Quotes are exact-output: you set $50, you receive 50.00 USDC. Swap costs are covered by the payer and shown before they send.</p></div>
+        </div>
+        <div class="feature">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 1 0 3-6.2"/><path d="M4 4v4h4"/></svg>
+          <div><h3>Overpayments go back</h3><p>If a client sends a little extra, the difference is refunded to their own address automatically.</p></div>
+        </div>
+        <div class="feature">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l9 16H3z"/><path d="M12 10v4M12 17h.01"/></svg>
+          <div><h3>Wrong-network guard</h3><p>Wallets list the same token on several chains. The pay page says exactly which network to send from, and has a Copy amount button so nobody rounds down.</p></div>
+        </div>
+        <div class="feature">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h4l3 7 4-14 3 7h4"/></svg>
+          <div><h3>Live status</h3><p>The page updates on its own: waiting, received, converting, paid. No refreshing, no guessing.</p></div>
+        </div>
+        <div class="feature">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h3"/></svg>
+          <div><h3>Shareable receipts</h3><p>Every payment gets a receipt link anyone can open to verify it live with NEAR Intents, with the NEAR transaction attached.</p></div>
+        </div>
+        <div class="feature">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 3v6c0 4.5-3 8-7 9-4-1-7-4.5-7-9V6z"/></svg>
+          <div><h3>Your money never touches us</h3><p>There's no account and no custody. Funds go from your client to a NEAR Intents deposit address and straight to your NEAR account.</p></div>
+        </div>
+        <div class="feature">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3M21 14v7h-7"/></svg>
+          <div><h3>Link, QR or share sheet</h3><p>Copy the link, download the QR code for an invoice, or share it straight to WhatsApp, Telegram or email from your phone.</p></div>
+        </div>
+        <div class="feature">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="2" width="10" height="20" rx="2.5"/><path d="M11 18h2"/></svg>
+          <div><h3>Made for phones</h3><p>Both sides work from a phone browser. Clients can scan the QR code and pay from the wallet app they already use.</p></div>
         </div>
       </div>
     </section>
 
-    <footer>Built at NEAR HACKATHON 2026 with <a href="https://docs.near-intents.org/">NEAR Intents</a>. <a href="https://github.com/HATWHY4041/pay-me-in-anything">Source on GitHub</a></footer>
+    <section class="site section" aria-labelledby="who-title" style="padding-top:0">
+      <h2 id="who-title">Who it's for</h2>
+      <p class="intro">Anyone who gets paid across borders and is tired of agreeing on a chain first.</p>
+      <div class="who">
+        <div><h3>Freelancers</h3><p>Bill a client abroad in dollars and let them pay from whatever wallet they have.</p></div>
+        <div><h3>Creators</h3><p>Put one link in your bio for commissions, tips or digital products.</p></div>
+        <div><h3>Small businesses</h3><p>Accept crypto from customers without running a payment stack or holding volatile tokens.</p></div>
+      </div>
+    </section>
+
+    <section class="site section" id="networks" aria-labelledby="net-title" style="padding-top:0">
+      <h2 id="net-title">Pay from almost anywhere</h2>
+      <p class="intro" id="net-intro">The list below loads live from NEAR Intents, so it's always current.</p>
+      <div class="nets" id="nets">
+        <span>Solana</span><span>Ethereum</span><span>Base</span><span>Arbitrum</span><span>Tron</span><span>Bitcoin</span><span>NEAR</span><span>BNB Chain</span><span>Polygon</span><span>TON</span>
+      </div>
+    </section>
+
+    <section class="site section" id="hood" aria-labelledby="hood-title" style="padding-top:0">
+      <h2 id="hood-title">Under the hood</h2>
+      <p class="intro">A thin, open-source layer over the NEAR Intents 1Click API. No contract to audit, no database, nothing to break.</p>
+      <div class="hood">
+        <div class="flow" aria-label="Payment flow">
+          <div class="box"><b>Any token, any chain</b><span>Client sends to a one-time deposit address</span></div>
+          <div class="arrow" aria-hidden="true"></div>
+          <div class="box"><b>NEAR Intents</b><span>Solvers compete to swap and bridge it</span></div>
+          <div class="arrow" aria-hidden="true"></div>
+          <div class="box end"><b>USDC on NEAR</b><span>Exactly the invoice amount, in your account</span></div>
+        </div>
+        <div>
+          <table class="endpoints">
+            <tbody>
+              <tr><td>GET /v0/tokens</td><td>Every chain and token a client can pay with</td></tr>
+              <tr><td>POST /v0/quote</td><td>An exact-output quote and a one-time deposit address</td></tr>
+              <tr><td>GET /v0/status</td><td>Live payment state, from waiting to paid or refunded</td></tr>
+              <tr><td>POST /v0/deposit/submit</td><td>Optional: the payer's transaction ID to speed things up</td></tr>
+            </tbody>
+          </table>
+          <p class="hint" style="margin-top:20px">The link itself carries who gets paid and how much, so there's no server-side account. <a href="https://github.com/HATWHY4041/pay-me-in-anything">Read the code on GitHub</a>.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="site section" id="faq" aria-labelledby="faq-title" style="padding-top:0">
+      <h2 id="faq-title">Questions</h2>
+      <div class="faq">
+        <details><summary>What does it cost?</summary><p>Nothing to create a link. The payer covers the swap: in our tests that was about 1% on top of the invoice, including NEAR Intents' fee. They see the exact amount before they send, and you always receive the full amount.</p></details>
+        <details><summary>What do I need to receive money?</summary><p>Just a NEAR account, like yourname.near or the long address from a wallet such as HOT or Meteor. Payments arrive there as USDC.</p></details>
+        <details><summary>What if my client sends the wrong amount or misses the deadline?</summary><p>If they send extra, the difference is refunded to the address they gave. If they send too little, or the payment can't complete, NEAR Intents refunds them on their own chain. Nothing gets stuck.</p></details>
+        <details><summary>How long does a payment take?</summary><p>Our real mainnet test took 46 seconds from sending to paid. Bitcoin and other slower chains take longer while their network confirms the transaction.</p></details>
+        <details><summary>Does Pay Me in Anything hold my money?</summary><p>No. The app never has custody. Your client sends to a deposit address created by NEAR Intents for that one payment, and the USDC is delivered straight to your account.</p></details>
+        <details><summary>Can my client pay from an exchange?</summary><p>Sending straight from an exchange can be unreliable, because exchanges batch withdrawals and the refund address won't be theirs. A personal wallet is the safer choice.</p></details>
+      </div>
+    </section>
+
+    <section class="section closing" aria-label="Get started">
+      <div class="site">
+        <h2>Send your first link in under a minute.</h2>
+        <a class="button" href="/create">Create a payment link</a>
+      </div>
+    </section>
   </main>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <footer class="sitefoot">
+    <div class="site">
+      <span>Built at NEAR HACKATHON 2026 with <a href="https://docs.near-intents.org/">NEAR Intents</a>.</span>
+      <span><a href="https://github.com/HATWHY4041/pay-me-in-anything">Source on GitHub</a></span>
+    </div>
+  </footer>
+
   <script src="/shared.js"></script>
-  <script src="/create.js"></script>
+  <script src="/landing.js"></script>
 </body>
 </html>

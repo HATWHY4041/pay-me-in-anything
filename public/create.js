@@ -1,13 +1,13 @@
 // The "Create a link" page. The link itself carries everything (who, how much, what for),
 // so no database is needed: anyone with the link can pay it.
 (function () {
-  const { isNearAccount, qr, copy } = window.PMA;
-  const form = document.getElementById("create");
-  const errorEl = document.getElementById("create-error");
-  const result = document.getElementById("result");
-  const linkOut = document.getElementById("link-out");
-  const openLink = document.getElementById("open-link");
+  const { isNearAccount, qr, copy, store, formatUsd } = window.PMA;
+  const $ = (id) => document.getElementById(id);
+  const form = $("create");
+  const errorEl = $("create-error");
+  const RECENT_KEY = "pma:recent";
   let currentLink = "";
+  let currentName = "";
 
   form.addEventListener("submit", (event) => {
     event.preventDefault();
@@ -26,16 +26,61 @@
     const params = new URLSearchParams({ to, amt: amt.toFixed(2), name });
     if (note) params.set("for", note);
     currentLink = `${location.origin}/pay?${params}`;
+    currentName = name;
 
-    linkOut.textContent = currentLink;
-    openLink.href = currentLink;
-    qr(document.getElementById("link-qr"), currentLink);
-    result.hidden = false;
-    result.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+    $("link-out").textContent = currentLink;
+    $("open-link").href = currentLink;
+    qr($("link-qr"), currentLink);
+    $("result").hidden = false;
+    $("share-link").hidden = !navigator.share;
+    remember({ link: currentLink, amt, note, to, at: Date.now() });
+    $("result").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
   });
 
-  document.getElementById("copy-link").addEventListener("click", (e) => copy(currentLink, e.currentTarget));
+  $("copy-link").addEventListener("click", (e) => copy(currentLink, e.currentTarget));
 
+  $("share-link").addEventListener("click", async () => {
+    try {
+      await navigator.share({ title: `Pay ${currentName}`, text: `Pay ${currentName} with any token`, url: currentLink });
+    } catch { /* share sheet closed */ }
+  });
+
+  // qrcodejs draws a canvas (and an img); export the canvas as a PNG with a white margin.
+  $("download-qr").addEventListener("click", () => {
+    const canvas = $("link-qr").querySelector("canvas");
+    if (!canvas) return;
+    const pad = 32, out = document.createElement("canvas");
+    out.width = canvas.width + pad * 2; out.height = canvas.height + pad * 2;
+    const ctx = out.getContext("2d");
+    ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, out.width, out.height);
+    ctx.drawImage(canvas, pad, pad);
+    const a = document.createElement("a");
+    a.href = out.toDataURL("image/png");
+    a.download = `pay-${currentName.toLowerCase().replace(/[^a-z0-9]+/g, "-") || "me"}-qr.png`;
+    document.body.appendChild(a); a.click(); a.remove();
+  });
+
+  // Recent links, kept only in this browser
+  function remember(item) {
+    const list = (store.get(RECENT_KEY) || []).filter((x) => x.link !== item.link);
+    list.unshift(item);
+    store.set(RECENT_KEY, list.slice(0, 8));
+    renderRecent();
+  }
+  function renderRecent() {
+    const list = store.get(RECENT_KEY) || [];
+    $("recent").hidden = list.length === 0;
+    $("recent-list").innerHTML = list.map((x) => {
+      const label = `$${formatUsd(x.amt)}${x.note ? ` for ${escapeHtml(x.note)}` : ""}`;
+      return `<li><span>${label}</span><span><a href="${escapeHtml(x.link)}">Open</a></span></li>`;
+    }).join("");
+  }
+  $("clear-recent").addEventListener("click", () => { store.remove(RECENT_KEY); renderRecent(); });
+  renderRecent();
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+  }
   function fail(message, field) {
     errorEl.textContent = message;
     const input = form.elements[field];
