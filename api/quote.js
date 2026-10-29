@@ -1,9 +1,8 @@
 // POST /api/quote — asks NEAR Intents for a one-time deposit address.
 // The payer sends their token there; Intents swaps and delivers exactly `amountUsd` USDC to the receiver on NEAR.
-import { oneClick, send, readJson, isNearAccount, errorMessage, PAYOUT_ASSET, PAYOUT_DECIMALS } from "./_lib.js";
+import { send, readJson, isNearAccount, errorMessage, quoteBody, requestQuote, explainQuoteError } from "./_lib.js";
 
 const QUOTE_MINUTES = 30;
-const NO_QUOTE = /not available|no quotes?|failed to get( a)? quote/i;
 
 export default async function handler(req, res) {
   let input;
@@ -33,35 +32,12 @@ export default async function handler(req, res) {
     return send(res, 400, { error: "Enter your own address on this chain, so a failed payment can be refunded." });
   }
 
-  const amount = String(Math.round(amountUsd * 10 ** PAYOUT_DECIMALS));
-
-  const body = {
-    dry,
-    swapType: "EXACT_OUTPUT",
-    slippageTolerance: 100, // 1%, in basis points
-    originAsset,
-    depositType: "ORIGIN_CHAIN",
-    destinationAsset: PAYOUT_ASSET,
-    amount,
-    refundTo: refundTo.trim(),
-    refundType: "ORIGIN_CHAIN",
-    recipient: recipient.trim().toLowerCase(),
-    recipientType: "DESTINATION_CHAIN",
-    deadline: new Date(Date.now() + QUOTE_MINUTES * 60 * 1000).toISOString(),
-    referral: "pay-me-in-anything",
-    quoteWaitingTimeMs: 4000,
-  };
-
   try {
-    let { ok, status, data } = await oneClick("/v0/quote", { method: "POST", body });
-    // Solvers sometimes don't answer in time, especially for larger amounts. Ask once more and wait longer.
-    if ((!ok || !data || !data.quote) && NO_QUOTE.test(errorMessage(data, ""))) {
-      ({ ok, status, data } = await oneClick("/v0/quote", { method: "POST", body: { ...body, quoteWaitingTimeMs: 8000 } }));
-    }
+    const body = quoteBody({ originAsset, amountUsd, recipient, refundTo, dry, waitMs: 4000, minutes: QUOTE_MINUTES });
+    const { ok, status, data } = await requestQuote(body);
     if (!ok || !data || !data.quote) {
-      return send(res, status && status < 500 ? 400 : 502, {
-        error: errorMessage(data, "NEAR Intents could not quote this payment. Try another token."),
-      });
+      const message = errorMessage(data, "NEAR Intents could not quote this payment. Try another token.");
+      return send(res, status && status < 500 ? 400 : 502, { error: message, ...explainQuoteError(message) });
     }
     const q = data.quote;
     return send(res, 200, {

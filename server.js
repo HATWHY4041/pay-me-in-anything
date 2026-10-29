@@ -8,7 +8,7 @@ import { fileURLToPath } from "node:url";
 const root = fileURLToPath(new URL(".", import.meta.url));
 const publicDir = join(root, "public");
 const port = Number(process.env.PORT) || 3000;
-const routes = new Set(["tokens", "quote", "status", "submit"]);
+const routes = new Set(["tokens", "quote", "status", "submit", "availability"]);
 const types = { ".html": "text/html; charset=utf-8", ".css": "text/css", ".js": "text/javascript", ".svg": "image/svg+xml", ".png": "image/png", ".ico": "image/x-icon", ".mp4": "video/mp4", ".jpg": "image/jpeg" };
 
 http

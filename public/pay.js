@@ -20,6 +20,8 @@
   $("payee-name").textContent = `Pay ${link.name || link.to}`;
   $("payee-account").textContent = `Arrives as USDC in ${link.to}`;
   $("amount").textContent = `$${formatUsd(link.amt)}`;
+  $("amount").parentElement.classList.toggle("long", formatUsd(link.amt).length > 6);
+  $("amount").parentElement.classList.toggle("xlong", formatUsd(link.amt).length > 9);
   if (link.note) {
     $("note").textContent = `For ${link.note}`;
     $("note").hidden = false;
@@ -35,41 +37,91 @@
   let countdownTimer = null;
 
   // ---- Step 1: chains and tokens ------------------------------------------
-  const PREFERRED_CHAINS = ["base", "eth", "arb", "sol", "near", "tron", "bsc", "pol", "op", "btc", "ton"];
-  const PREFERRED_TOKENS = ["USDC", "USDT", "ETH", "SOL", "NEAR", "BTC", "TRX", "BNB"];
+  const PREFERRED_CHAINS = ["base", "sol", "arb", "near", "tron", "eth", "bsc", "pol", "op", "btc", "ton", "avax"];
+  const PREFERRED_TOKENS = ["USDC", "USDT", "ETH", "SOL", "NEAR", "wNEAR", "BTC", "TRX", "BNB"];
   const rank = (list, v) => (list.indexOf(v) === -1 ? 99 : list.indexOf(v));
+  // Live availability from /api/availability: assetId -> { ok: true | false | null, kind, minUsd }
+  let avail = null;
+
+  const usable = (t) => !avail || !avail[t.assetId] || avail[t.assetId].ok !== false;
+  function why(t) {
+    const a = avail && avail[t.assetId];
+    if (!a || a.ok !== false) return "";
+    if (a.kind === "min") return `min $${formatUsd(a.minUsd).replace(/\.00$/, "")}`;
+    if (a.kind === "paused") return "paused right now";
+    if (a.kind === "liquidity") return "no liquidity right now";
+    return "unavailable right now";
+  }
+  function chainWhy(chain) {
+    const list = tokens.filter((t) => t.blockchain === chain);
+    const mins = list.map((t) => avail && avail[t.assetId]).filter((a) => a && a.kind === "min").map((a) => a.minUsd);
+    if (mins.length) return `from $${formatUsd(Math.min(...mins)).replace(/\.00$/, "")}`;
+    return list.some((t) => avail && avail[t.assetId] && avail[t.assetId].kind === "paused") ? "paused right now" : "unavailable right now";
+  }
+  const chainOk = (chain) => tokens.some((t) => t.blockchain === chain && usable(t));
 
   async function loadTokens() {
     try {
       const data = await api("/api/tokens");
       tokens = data.tokens;
-      const chains = [...new Set(tokens.map((t) => t.blockchain))].sort(
-        (a, b) => rank(PREFERRED_CHAINS, a) - rank(PREFERRED_CHAINS, b) || chainName(a).localeCompare(chainName(b))
-      );
-      $("chain").innerHTML = chains.map((c) => `<option value="${c}">${escapeHtml(chainName(c))}</option>`).join("");
-      $("chain").disabled = false;
-      fillTokens();
     } catch (err) {
       $("choose-error").textContent = `${err.message} Reload the page to try again.`;
       $("chain").innerHTML = "<option>Unavailable</option>";
       $("token").innerHTML = "<option>Unavailable</option>";
+      return;
     }
+    $("estimate").textContent = `Checking which tokens can pay $${formatUsd(link.amt)} right now…`;
+    try {
+      avail = (await api(`/api/availability?amt=${link.amt}`)).assets;
+    } catch {
+      avail = null; // can't tell: offer everything, and handle any refusal when the payer asks for an address
+    }
+    fillChains();
   }
 
-  function fillTokens() {
+  function fillChains(keep) {
+    const chains = [...new Set(tokens.map((t) => t.blockchain))].sort(
+      (a, b) => rank(PREFERRED_CHAINS, a) - rank(PREFERRED_CHAINS, b) || chainName(a).localeCompare(chainName(b))
+    );
+    const on = chains.filter(chainOk);
+    const off = chains.filter((c) => !chainOk(c));
+    if (!on.length) {
+      $("chain").innerHTML = "<option>Unavailable</option>";
+      $("token").innerHTML = "<option>Unavailable</option>";
+      $("estimate").textContent = "";
+      $("choose-error").textContent = "NEAR Intents can't take any payments of this size right now. Try again in a few minutes.";
+      return;
+    }
+    $("chain").innerHTML =
+      on.map((c) => `<option value="${c}">${escapeHtml(chainName(c))}</option>`).join("") +
+      (off.length
+        ? `<optgroup label="Not available for $${formatUsd(link.amt)} right now">` +
+          off.map((c) => `<option value="${c}" disabled>${escapeHtml(chainName(c))} (${escapeHtml(chainWhy(c))})</option>`).join("") +
+          "</optgroup>"
+        : "");
+    $("chain").disabled = false;
+    if (keep && on.includes(keep)) $("chain").value = keep;
+    fillTokens();
+  }
+
+  function fillTokens(keepAsset) {
     const chain = $("chain").value;
     const list = tokens
       .filter((t) => t.blockchain === chain)
-      .sort((a, b) => rank(PREFERRED_TOKENS, a.symbol) - rank(PREFERRED_TOKENS, b.symbol) || a.symbol.localeCompare(b.symbol));
-    $("token").innerHTML = list.map((t) => `<option value="${escapeHtml(t.assetId)}">${escapeHtml(t.symbol)}</option>`).join("");
-    $("token").disabled = list.length === 0;
+      .sort((a, b) => (usable(b) - usable(a)) || rank(PREFERRED_TOKENS, a.symbol) - rank(PREFERRED_TOKENS, b.symbol) || a.symbol.localeCompare(b.symbol));
+    $("token").innerHTML = list
+      .map((t) => `<option value="${escapeHtml(t.assetId)}"${usable(t) ? "" : " disabled"}>${escapeHtml(t.symbol)}${usable(t) ? "" : ` (${escapeHtml(why(t))})`}</option>`)
+      .join("");
+    $("token").disabled = !list.some(usable);
+    if (keepAsset && list.some((t) => t.assetId === keepAsset && usable(t))) $("token").value = keepAsset;
     $("refund-label").textContent = `Your ${chainName(chain)} address`;
     pickToken();
   }
 
   function pickToken() {
-    selected = tokens.find((t) => t.assetId === $("token").value) || null;
+    selected = tokens.find((t) => t.assetId === $("token").value && usable(t)) || null;
     $("get-address").disabled = !selected;
+    $("alts").hidden = true;
     if (selected && selected.price) {
       const estimate = link.amt / selected.price;
       const digits = estimate >= 100 ? 2 : estimate >= 1 ? 4 : 6;
@@ -79,12 +131,41 @@
     }
   }
 
-  $("chain").addEventListener("change", fillTokens);
+  // Other ways to pay that work right now: the same token on other chains first, then stablecoins.
+  function showAlternatives(failed) {
+    const picks = tokens
+      .filter((t) => t.assetId !== failed.assetId && usable(t))
+      .sort((a, b) =>
+        (b.symbol === failed.symbol) - (a.symbol === failed.symbol) ||
+        rank(PREFERRED_TOKENS, a.symbol) - rank(PREFERRED_TOKENS, b.symbol) ||
+        rank(PREFERRED_CHAINS, a.blockchain) - rank(PREFERRED_CHAINS, b.blockchain))
+      .slice(0, 4);
+    if (!picks.length) return;
+    $("alts").innerHTML = `<span>Works right now:</span>` + picks
+      .map((t) => `<button type="button" class="alt" data-asset="${escapeHtml(t.assetId)}">${escapeHtml(t.symbol)} <small>${escapeHtml(chainName(t.blockchain))}</small></button>`)
+      .join("");
+    $("alts").hidden = false;
+  }
+  $("alts").addEventListener("click", (e) => {
+    const b = e.target.closest(".alt");
+    if (!b) return;
+    const t = tokens.find((x) => x.assetId === b.dataset.asset);
+    if (!t) return;
+    $("choose-error").textContent = "";
+    $("chain").value = t.blockchain;
+    fillTokens(t.assetId);
+    // The refund address belongs to the old chain, so ask for a new one.
+    $("refund").value = "";
+    $("refund").focus();
+  });
+
+  $("chain").addEventListener("change", () => fillTokens());
   $("token").addEventListener("change", pickToken);
 
   $("choose").addEventListener("submit", async (event) => {
     event.preventDefault();
     $("choose-error").textContent = "";
+    $("alts").hidden = true;
     const refundTo = $("refund").value.trim();
     if (!selected) return;
     if (refundTo.length < 3) {
@@ -95,19 +176,28 @@
     const button = $("get-address");
     button.disabled = true;
     button.textContent = "Getting your address…";
+    const tried = selected;
     try {
       const q = await api("/api/quote", {
         method: "POST",
-        body: { originAsset: selected.assetId, recipient: link.to, refundTo, amountUsd: link.amt, dry: false },
+        body: { originAsset: tried.assetId, recipient: link.to, refundTo, amountUsd: link.amt, dry: false },
       });
       if (!q.depositAddress) throw new Error("NEAR Intents did not return a deposit address. Try another token.");
-      quote = { ...q, symbol: selected.symbol, chain: selected.blockchain, createdAt: Date.now() };
+      quote = { ...q, symbol: tried.symbol, chain: tried.blockchain, createdAt: Date.now() };
       store.set(storeKey, quote);
       showDeposit();
     } catch (err) {
-      $("choose-error").textContent = friendly(err.message);
+      const info = err.data || {};
+      $("choose-error").textContent = friendly(err.message, info, tried);
+      if (info.kind === "min" || info.kind === "paused" || info.kind === "liquidity") {
+        // This token can't pay this invoice right now: take it off the list and offer ones that can.
+        avail = avail || {};
+        avail[tried.assetId] = { ok: false, kind: info.kind, minUsd: info.minUsd };
+        fillChains(tried.blockchain);
+        showAlternatives(tried);
+      }
     } finally {
-      button.disabled = false;
+      button.disabled = !selected;
       button.textContent = "Get payment address";
     }
   });
@@ -260,15 +350,14 @@
     return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
   }
 
-  function friendly(message) {
+  function friendly(message, info = {}, token = null) {
     const m = String(message || "");
-    if (/refund/i.test(m) && /address|valid/i.test(m)) return "That address doesn't look right for this chain. Check it and try again.";
-    if (/amount.*(low|small)|too (low|small)/i.test(m)) return "This amount is too small for this token. Try a stablecoin like USDC.";
-    if (/not available|no quotes?|failed to get( a)? quote/i.test(m)) {
-      const t = $("token").selectedOptions[0], c = $("chain").selectedOptions[0];
-      const pair = t && c ? `${t.textContent} on ${c.textContent}` : "this token";
-      return `Nobody is offering a price for ${pair} at this amount right now. Try again in a minute, or pick another token or chain (USDC or USDT on Solana, Base or Arbitrum usually work).`;
-    }
+    const pair = token ? `${token.symbol} on ${chainName(token.blockchain)}` : "this token";
+    if (info.kind === "min") return `NEAR Intents only accepts ${pair} for payments of $${formatUsd(info.minUsd)} or more right now. Pick another way to pay below.`;
+    if (info.kind === "paused") return `NEAR Intents has paused payments from ${pair} for now. Pick another way to pay below.`;
+    if (info.kind === "liquidity") return `Nobody is offering to swap ${pair} right now. Pick another way to pay below, or try again in a few minutes.`;
+    if (/refund/i.test(m) && /address|valid/i.test(m)) return `That doesn't look like a ${token ? chainName(token.blockchain) + " " : ""}address. Check it and try again.`;
+    if (/recipient/i.test(m) && /valid/i.test(m)) return "This payment link has a NEAR account that NEAR Intents doesn't accept. Ask for a new link.";
     return m || "Something went wrong. Try again.";
   }
 

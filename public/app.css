@@ -88,6 +88,8 @@ h1 {
   letter-spacing: -0.035em; font-variant-numeric: tabular-nums;
   margin: 18px 0 6px;
 }
+.amount.long { font-size: clamp(38px, 11.5vw, 64px); }
+.amount.xlong { font-size: clamp(32px, 9vw, 56px); }
 .amount small { font-size: 0.42em; letter-spacing: 0; color: var(--ink-soft); margin-left: 6px; }
 .note { margin: 0; color: var(--ink-soft); }
 
@@ -132,6 +134,17 @@ button:disabled { opacity: 0.55; cursor: progress; }
   min-height: 0;
 }
 .error:empty { display: none; }
+
+/* Other ways to pay, offered when a token can't pay this invoice right now */
+.alts { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 12px 0 0; }
+.alts[hidden] { display: none; }
+.alts > span { font-size: 14px; color: var(--ink-soft); width: 100%; }
+.alts .alt {
+  width: auto; min-height: 40px; padding: 6px 14px; border-radius: 999px; font-size: 14px; font-weight: 600;
+  background: var(--slip); color: var(--ink); border: 1px solid var(--rule); cursor: pointer;
+}
+.alts .alt small { font-weight: 500; color: var(--ink-soft); margin-left: 4px; }
+.alts .alt:hover { border-color: var(--ink); }
 
 /* Deposit details */
 .send-line { font-size: 15px; margin: 0 0 4px; color: var(--ink-soft); }

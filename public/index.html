@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Pay Me in Anything: get paid in USDC, whatever your client holds</title>
-  <meta name="description" content="One payment link. Your client pays with any token on 35+ chains; you receive exact USDC in your NEAR account, settled by NEAR Intents.">
+  <meta name="description" content="One payment link. Your client pays with any token on 25+ chains; you receive exact USDC in your NEAR account, settled by NEAR Intents.">
   <meta property="og:title" content="Pay Me in Anything">
   <meta property="og:description" content="One link. Any token, any chain. Exact USDC on NEAR.">
   <meta property="og:image" content="/demo-poster.jpg">
@@ -66,8 +66,8 @@
 
     <section class="proof" aria-label="At a glance">
       <div class="site">
-        <div class="stat"><b id="stat-chains">35+</b><span>chains your client can pay from</span></div>
-        <div class="stat"><b id="stat-tokens">200+</b><span>tokens accepted, live</span></div>
+        <div class="stat"><b id="stat-chains">25+</b><span>chains your client can pay from right now</span></div>
+        <div class="stat"><b id="stat-tokens">80+</b><span>tokens accepted, checked live</span></div>
         <div class="stat"><b>46 s</b><span>from send to paid, real mainnet test</span></div>
         <div class="stat"><b>0</b><span>smart contracts to trust</span></div>
       </div>
@@ -202,6 +202,7 @@
       <div class="faq">
         <details><summary>What does it cost?</summary><p>Nothing to create a link. The payer covers the swap: in our tests that was about 1% on top of the invoice, including NEAR Intents' fee. They see the exact amount before they send, and you always receive the full amount.</p></details>
         <details><summary>What do I need to receive money?</summary><p>Just a NEAR account, like yourname.near or the long address from a wallet such as HOT or Meteor. Payments arrive there as USDC.</p></details>
+        <details><summary>Why is a chain or token greyed out?</summary><p>NEAR Intents sometimes pauses a network (Ethereum mainnet is paused as of late October 2026), sets a temporary minimum (for example $100 for USDT on Tron), or has nobody offering to swap a token. Before your client picks anything, the pay page checks every token live for that exact invoice amount and only lets them choose ones that will go through. Greyed-out options show the reason, and come back by themselves when NEAR Intents lifts the limit.</p></details>
         <details><summary>What if my client sends the wrong amount or misses the deadline?</summary><p>If they send extra, the difference is refunded to the address they gave. If they send too little, or the payment can't complete, NEAR Intents refunds them on their own chain. Nothing gets stuck.</p></details>
         <details><summary>How long does a payment take?</summary><p>Our real mainnet test took 46 seconds from sending to paid. Bitcoin and other slower chains take longer while their network confirms the transaction.</p></details>
         <details><summary>Does Pay Me in Anything hold my money?</summary><p>No. The app never has custody. Your client sends to a deposit address created by NEAR Intents for that one payment, and the USDC is delivered straight to your account.</p></details>

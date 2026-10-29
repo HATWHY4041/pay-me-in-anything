@@ -41,6 +41,8 @@
 .chip { width: auto; min-height: 40px; padding: 6px 14px; border-radius: 999px; font-size: 14px; font-weight: 600;
   background: var(--field); color: var(--ink); border: 1px solid var(--rule); }
 .chip small { font-weight: 500; color: var(--ink-soft); margin-left: 4px; }
+.chip.off { opacity: 0.55; text-decoration: line-through; text-decoration-thickness: 1px; }
+.chip.off small { text-decoration: none; }
 .chip[aria-pressed="true"] { background: var(--ink); color: var(--slip); border-color: var(--ink); }
 .chip[aria-pressed="true"] small { color: inherit; opacity: 0.7; }
 .calc-out { font: 700 30px/1.15 var(--display); letter-spacing: -0.015em; font-variant-numeric: tabular-nums; margin: 0; min-height: 1.15em; }
@@ -120,6 +122,7 @@
 .nets { display: flex; flex-wrap: wrap; gap: 10px; }
 .nets span { padding: 10px 16px; border-radius: 999px; background: var(--slip); border: 1px solid var(--rule); font-weight: 600; font-size: 15px; }
 .nets small { color: var(--ink-soft); font-weight: 500; margin-left: 6px; }
+.nets span.off { opacity: 0.5; border-style: dashed; }
 
 /* Under the hood */
 .hood { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: start; }

@@ -44,6 +44,8 @@ You make a link ──▶ Payer opens it ──▶ picks chain + token ──▶
 - **EXACT_OUTPUT quotes** mean the receiver always gets the full invoice amount; the payer sees exactly how much of their token covers it.
 - Each payment gets a **fresh one-time deposit address** from NEAR Intents, with a QR code and a countdown.
 - The page **polls the status** and shows a receipt with a "Paid" stamp on success. Refunds go to the payer's own address.
+- **Live availability check.** NEAR Intents pauses networks, sets temporary minimums and loses liquidity from time to time (in late October 2026 Ethereum mainnet was paused and USDT on Tron needed $100+). Before the payer picks anything, `/api/availability` runs a free dry quote for every token at the invoice's exact amount, and the pay page only offers the ones that will work. The rest are greyed out with the reason ("paused right now", "min $100"). If a quote still fails, the page suggests working alternatives in one tap.
+- **Memo chains handled.** Stellar deposits need a memo; the app requests one automatically and shows it next to the address.
 - **Wrong-network guard.** Multi-chain wallets list the same token on several chains, so the deposit screen says exactly which network to send from. A "Copy amount" button keeps payers from rounding the amount down.
 
 ### NEAR Intents endpoints used
@@ -51,6 +53,7 @@ You make a link ──▶ Payer opens it ──▶ picks chain + token ──▶
 | Endpoint | Where | Why |
 | --- | --- | --- |
 | `GET /v0/tokens` | `api/tokens.js` | Every chain and token the payer can choose |
+| `POST /v0/quote` (dry) | `api/availability.js` | Which tokens can pay an invoice of this size right now (paused chains, minimums, liquidity) |
 | `POST /v0/quote` | `api/quote.js` | One-time deposit address for an exact USDC amount out |
 | `GET /v0/status` | `api/status.js` | Live payment state (pending → processing → success / refunded) |
 | `POST /v0/deposit/submit` | `api/submit.js` | Optional: payer pastes their tx hash to speed up detection |
@@ -99,6 +102,7 @@ public/receipt.html, receipt.js Shareable, live-verified receipt
 public/pay.html, pay.js        Pay page: token picker, deposit address, QR, live status, receipt
 public/shared.js, app.css      Shared helpers and styles
 api/*.js                       Thin server-side proxies to the 1Click API (keeps the key private)
+api/availability.js            Live check of which tokens can pay a given amount right now
 server.js                      Zero-dependency local server that mirrors Vercel
 ```
 

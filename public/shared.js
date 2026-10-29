@@ -59,7 +59,11 @@
     });
     let data = null;
     try { data = await res.json(); } catch { /* non-JSON */ }
-    if (!res.ok) throw new Error((data && data.error) || `Request failed (${res.status})`);
+    if (!res.ok) {
+      const err = new Error((data && data.error) || `Request failed (${res.status})`);
+      err.data = data || {};
+      throw err;
+    }
     return data;
   }
 

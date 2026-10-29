@@ -12,6 +12,8 @@
   $("slip").hidden = false;
   $("r-to").textContent = `To ${r.to}`;
   $("r-amt").textContent = `$${formatUsd(r.amt)}`;
+  $("r-amt").parentElement.classList.toggle("long", formatUsd(r.amt).length > 6);
+  $("r-amt").parentElement.classList.toggle("xlong", formatUsd(r.amt).length > 9);
   if (r.note) { $("r-note").textContent = `For ${r.note}`; $("r-note").hidden = false; }
   $("r-copy").addEventListener("click", (e) => copy(location.href, e.currentTarget));
 
