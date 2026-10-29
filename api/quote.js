@@ -3,6 +3,7 @@
 import { oneClick, send, readJson, isNearAccount, errorMessage, PAYOUT_ASSET, PAYOUT_DECIMALS } from "./_lib.js";
 
 const QUOTE_MINUTES = 30;
+const NO_QUOTE = /not available|no quotes?|failed to get( a)? quote/i;
 
 export default async function handler(req, res) {
   let input;
@@ -48,11 +49,15 @@ export default async function handler(req, res) {
     recipientType: "DESTINATION_CHAIN",
     deadline: new Date(Date.now() + QUOTE_MINUTES * 60 * 1000).toISOString(),
     referral: "pay-me-in-anything",
-    quoteWaitingTimeMs: 3000,
+    quoteWaitingTimeMs: 4000,
   };
 
   try {
-    const { ok, status, data } = await oneClick("/v0/quote", { method: "POST", body });
+    let { ok, status, data } = await oneClick("/v0/quote", { method: "POST", body });
+    // Solvers sometimes don't answer in time, especially for larger amounts. Ask once more and wait longer.
+    if ((!ok || !data || !data.quote) && NO_QUOTE.test(errorMessage(data, ""))) {
+      ({ ok, status, data } = await oneClick("/v0/quote", { method: "POST", body: { ...body, quoteWaitingTimeMs: 8000 } }));
+    }
     if (!ok || !data || !data.quote) {
       return send(res, status && status < 500 ? 400 : 502, {
         error: errorMessage(data, "NEAR Intents could not quote this payment. Try another token."),

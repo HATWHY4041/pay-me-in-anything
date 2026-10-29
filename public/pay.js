@@ -264,6 +264,11 @@
     const m = String(message || "");
     if (/refund/i.test(m) && /address|valid/i.test(m)) return "That address doesn't look right for this chain. Check it and try again.";
     if (/amount.*(low|small)|too (low|small)/i.test(m)) return "This amount is too small for this token. Try a stablecoin like USDC.";
+    if (/not available|no quotes?|failed to get( a)? quote/i.test(m)) {
+      const t = $("token").selectedOptions[0], c = $("chain").selectedOptions[0];
+      const pair = t && c ? `${t.textContent} on ${c.textContent}` : "this token";
+      return `Nobody is offering a price for ${pair} at this amount right now. Try again in a minute, or pick another token or chain (USDC or USDT on Solana, Base or Arbitrum usually work).`;
+    }
     return m || "Something went wrong. Try again.";
   }
 
