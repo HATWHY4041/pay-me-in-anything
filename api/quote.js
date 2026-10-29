@@ -5,18 +5,23 @@ import { oneClick, send, readJson, isNearAccount, errorMessage, PAYOUT_ASSET, PA
 const QUOTE_MINUTES = 30;
 
 export default async function handler(req, res) {
-  if (req.method !== "POST") return send(res, 405, { error: "Use POST" });
-
   let input;
-  try {
-    input = await readJson(req);
-  } catch {
-    return send(res, 400, { error: "The request body is not valid JSON." });
+  if (req.method === "GET") {
+    // GET is a price preview only: it never returns a deposit address.
+    input = { ...Object.fromEntries(new URL(req.url, "http://local").searchParams), dry: true };
+  } else if (req.method === "POST") {
+    try {
+      input = await readJson(req);
+    } catch {
+      return send(res, 400, { error: "The request body is not valid JSON." });
+    }
+  } else {
+    return send(res, 405, { error: "Use GET for a preview or POST for a payment address" });
   }
 
   const { originAsset, recipient, refundTo } = input;
   const amountUsd = Number(input.amountUsd);
-  const dry = input.dry === true;
+  const dry = req.method === "GET" || input.dry === true;
 
   if (!originAsset || typeof originAsset !== "string") return send(res, 400, { error: "Pick a token to pay with." });
   if (!isNearAccount(recipient)) return send(res, 400, { error: "This payment link has an invalid NEAR account." });

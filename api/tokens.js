@@ -9,7 +9,9 @@ export default async function handler(req, res) {
       return send(res, status || 502, { error: errorMessage(data, "Could not load tokens from NEAR Intents") });
     }
     const tokens = data
-      .filter((t) => t && t.assetId && t.blockchain && t.symbol)
+      // Hide tokens with no price (can't be quoted) and ones NEAR Intents marks as deprecated.
+      .filter((t) => t && t.assetId && t.blockchain && t.symbol && Number(t.price) > 0)
+      .filter((t) => !/deprecated/i.test(t.symbol))
       .map((t) => ({
         assetId: t.assetId,
         blockchain: t.blockchain,

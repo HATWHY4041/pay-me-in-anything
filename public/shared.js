@@ -6,6 +6,8 @@
     btc: "Bitcoin", doge: "Dogecoin", ltc: "Litecoin", bch: "Bitcoin Cash", zec: "Zcash", xrp: "XRP Ledger",
     tron: "Tron", ton: "TON", sui: "Sui", aptos: "Aptos", stellar: "Stellar", cardano: "Cardano",
     starknet: "Starknet", monad: "Monad", plasma: "Plasma", xlayer: "X Layer", adi: "ADI",
+    abs: "Abstract", scroll: "Scroll", hypercore: "Hyperliquid", aleo: "Aleo", dash: "Dash",
+    movement: "Movement", fogo: "Fogo",
   };
 
   function chainName(id) {
