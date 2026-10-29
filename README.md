@@ -6,6 +6,18 @@ Built at **NEAR HACKATHON 2026** for the Real-World Money track, powered by [NEA
 
 **Live app:** https://pay-me-in-anything.vercel.app
 
+## For judges: 5-minute path
+
+1. **The idea.** Freelancers get paid in whatever the client holds. The receiver always gets the exact invoice amount in USDC on NEAR.
+2. **Watch it.** The demo video is on the site at [/#watch](https://pay-me-in-anything.vercel.app/#watch) and in the X post.
+3. **Try it live, no money needed.**
+   - Open [/create](https://pay-me-in-anything.vercel.app/create), enter any NEAR account and an amount, then open the link.
+   - Pick a chain and token, and paste an address on that chain as the refund address.
+   - The page returns a real NEAR Intents quote, a one-time deposit address, a QR code and a countdown.
+4. **Check the proof.** Two real mainnet payments are listed under "Tested with real money" below.
+5. **Read the code.** The four files in `api/` call the 1Click endpoints; the pages are plain static files in `public/`. There is no contract and no database.
+6. **Run it.** `node server.js` (Node 20+, nothing to install). The `curl` command under "Run it locally" returns a live quote.
+
 ## Tested with real money (mainnet)
 
 | Paid with | Received | Time to "Paid" |
