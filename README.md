@@ -40,7 +40,7 @@ You make a link ──▶ Payer opens it ──▶ picks chain + token ──▶
                                        (fails or expires → payer is refunded on their own chain)
 ```
 
-- **No smart contract and no database.** The link carries the receiver, amount and note (`/pay?to=ade.near&amt=50.00&name=Ade&for=Logo`).
+- **No smart contract and no database.** The link carries the receiver, amount and note (`/pay?to=ade.near&amt=1.00&name=Ade&for=Logo`).
 - **EXACT_OUTPUT quotes** mean the receiver always gets the full invoice amount; the payer sees exactly how much of their token covers it.
 - Each payment gets a **fresh one-time deposit address** from NEAR Intents, with a QR code and a countdown.
 - The page **polls the status** and shows a receipt with a "Paid" stamp on success. Refunds go to the payer's own address.
