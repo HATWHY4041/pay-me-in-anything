@@ -153,6 +153,10 @@ button:disabled { opacity: 0.55; cursor: progress; }
   font: 500 13.5px/1.45 var(--mono); overflow-wrap: anywhere;
 }
 .copybox button { width: auto; min-height: 0; padding: 0 14px; font-size: 14px; }
+.network-warn {
+  font-size: 14px; line-height: 1.45; margin: -8px 0 16px; padding: 10px 12px;
+  border-left: 3px solid var(--wait); background: var(--field); border-radius: 0 8px 8px 0;
+}
 .memo-warn { font-size: 14px; color: var(--wait); margin: 0 0 12px; }
 .countdown { font-size: 14px; color: var(--ink-soft); margin: 6px 0 0; font-variant-numeric: tabular-nums; }
 

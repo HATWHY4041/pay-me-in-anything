@@ -117,6 +117,9 @@
     $("choose").hidden = true;
     $("deposit").hidden = false;
     $("send-amount").textContent = `${quote.amountInFormatted} ${quote.symbol} on ${chainName(quote.chain)}`;
+    // Multi-chain wallets show the same token on several networks; sending from the wrong one fails.
+    $("network-warn").textContent =
+      `Send from the ${chainName(quote.chain)} network only. If your wallet lists ${quote.symbol} more than once, pick the one on ${chainName(quote.chain)}.`;
     $("deposit-address").textContent = quote.depositAddress;
     qr($("deposit-qr"), quote.depositAddress);
     if (quote.depositMemo) {
