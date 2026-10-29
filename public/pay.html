@@ -56,7 +56,10 @@
       <!-- Step 2: send to the deposit address -->
       <section id="deposit" class="slip-section" hidden>
         <p class="send-line">Send exactly</p>
-        <p class="send-amount" id="send-amount"></p>
+        <div class="amount-row">
+          <p class="send-amount" id="send-amount"></p>
+          <button type="button" class="quiet button-small" id="copy-amount">Copy amount</button>
+        </div>
         <p class="network-warn" id="network-warn"></p>
         <div class="qr" id="deposit-qr" role="img" aria-label="QR code of the deposit address"></div>
         <div class="copybox">
@@ -96,7 +99,7 @@
       </section>
     </article>
 
-    <footer>Payments settle through <a href="https://docs.near-intents.org/">NEAR Intents</a>. Built at NEAR HACKATHON 2026.</footer>
+    <footer>Payments settle through <a href="https://docs.near-intents.org/">NEAR Intents</a>. Built at NEAR HACKATHON 2026. <a href="https://github.com/HATWHY4041/pay-me-in-anything">Source</a></footer>
   </main>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>

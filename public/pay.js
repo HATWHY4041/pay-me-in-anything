@@ -184,6 +184,8 @@
     $("status-text").textContent = text;
   }
 
+  // Copy the full-precision amount so payers never round it down by hand.
+  $("copy-amount").addEventListener("click", (e) => copy(quote.amountInFormatted, e.currentTarget));
   $("copy-address").addEventListener("click", (e) => copy(quote.depositAddress, e.currentTarget));
   $("copy-memo").addEventListener("click", (e) => copy(quote.depositMemo, e.currentTarget));
 
