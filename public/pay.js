@@ -139,9 +139,12 @@
         clearInterval(countdownTimer);
         return;
       }
-      const m = Math.floor(left / 60000);
+      const h = Math.floor(left / 3600000);
+      const m = Math.floor((left % 3600000) / 60000);
       const s = Math.floor((left % 60000) / 1000);
-      $("countdown").textContent = `Send within ${m}:${String(s).padStart(2, "0")}`;
+      $("countdown").textContent = h > 0
+        ? `Send within ${h}h ${m}m`
+        : `Send within ${m}:${String(s).padStart(2, "0")}`;
     };
     tick();
     countdownTimer = setInterval(tick, 1000);
@@ -226,7 +229,7 @@
       ["Paid with", `${s.amountInFormatted || quote.amountInFormatted} ${quote.symbol} on ${chainName(quote.chain)}`],
     ];
     if (link.note) rows.push(["For", link.note]);
-    if (s.refundedAmountFormatted) rows.push(["Refunded", `${s.refundedAmountFormatted} ${quote.symbol}`]);
+    if (Number(s.refundedAmountFormatted) > 0) rows.push(["Refunded", `${s.refundedAmountFormatted} ${quote.symbol}`]);
     rows.push(["Date", new Date().toLocaleString()]);
     if (s.destinationTxHashes && s.destinationTxHashes[0]) {
       rows.push(["NEAR transaction", `<a href="https://nearblocks.io/txns/${encodeURIComponent(s.destinationTxHashes[0])}" target="_blank" rel="noopener">${escapeHtml(s.destinationTxHashes[0].slice(0, 10))}…</a>`]);
