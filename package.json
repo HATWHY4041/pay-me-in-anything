@@ -1,0 +1,13 @@
+{
+  "name": "pay-me-in-anything",
+  "version": "0.1.0",
+  "private": true,
+  "description": "One payment link. The payer uses any token on any chain; the receiver gets USDC on NEAR, via NEAR Intents.",
+  "type": "module",
+  "license": "MIT",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  }
+}
