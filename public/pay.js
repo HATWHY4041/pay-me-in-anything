@@ -247,7 +247,7 @@
 
   function friendly(message) {
     const m = String(message || "");
-    if (/refund/i.test(m) && /address|invalid/i.test(m)) return "That address doesn't look right for this chain. Check it and try again.";
+    if (/refund/i.test(m) && /address|valid/i.test(m)) return "That address doesn't look right for this chain. Check it and try again.";
     if (/amount.*(low|small)|too (low|small)/i.test(m)) return "This amount is too small for this token. Try a stablecoin like USDC.";
     return m || "Something went wrong. Try again.";
   }
